@@ -6,8 +6,9 @@ import authImage from '@/assets/images/auth-image.jpg';
 import RegisterForm from '@/components/RegisterForm';
 import ForgotPasswordForm from '@/components/ForgotPasswordForm';
 import LoginForm from '@/components/LoginForm';
+import ChangePasswordForm from '@/components/ChangePasswordForm';
 
-type Props = { mode: 'login' | 'register' | 'forgot' };
+type Props = { mode: 'login' | 'register' | 'forgot' | 'change-password' };
 
 export default function Auth({ mode }: Props) {
   return (
@@ -21,6 +22,7 @@ export default function Auth({ mode }: Props) {
         className="object-cover -z-10"
         sizes="100vw"
       />
+      <div className="absolute inset-0 bg-black/40 -z-10" />
 
       {/* STATIC‑SIZE CARD */}
       <section
@@ -55,6 +57,8 @@ export default function Auth({ mode }: Props) {
             <RegisterForm />
             ) : mode === 'forgot' ? (
             <ForgotPasswordForm />
+            ) : mode === 'change-password' ? (
+            <ChangePasswordForm />
             ) : (
             <LoginForm />
             )}

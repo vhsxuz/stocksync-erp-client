@@ -1,0 +1,75 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
+  name       String?
+  isVerified Boolean
+  isActive   Boolean
+  subscriptionExpiry DateTime?
+  resetToken String?  @db.Text
+  resetTokenExpiry  DateTime?
+  createdAt  DateTime @default(now())
+
+  items        Item[]
+  vendors      Vendor[]
+  transactions TransactionHeader[]
+}
+
+model Item {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  stock       Int
+  createdAt   DateTime @default(now())
+  userId      String
+
+  user    User                @relation(fields: [userId], references: [id])
+  details TransactionDetail[]
+}
+
+model Vendor {
+  id        String   @id @default(uuid())
+  name      String
+  contact   String?
+  address   String?
+  createdAt DateTime @default(now())
+  userId    String
+
+  user         User                @relation(fields: [userId], references: [id])
+  transactions TransactionHeader[]
+}
+
+model TransactionHeader {
+  id          String   @id @default(uuid())
+  userId      String
+  vendorId    String
+  totalAmount Float
+  createdAt   DateTime @default(now())
+
+  user    User                @relation(fields: [userId], references: [id])
+  vendor  Vendor              @relation(fields: [vendorId], references: [id])
+  details TransactionDetail[]
+}
+
+model TransactionDetail {
+  id              String @id @default(uuid())
+  transactionId   String
+  itemId          String
+  quantity        Int
+  priceAtPurchase Float
+
+  transaction TransactionHeader @relation(fields: [transactionId], references: [id])
+  item        Item              @relation(fields: [itemId], references: [id])
+}
