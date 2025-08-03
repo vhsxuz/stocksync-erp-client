@@ -1,4 +1,3 @@
-// src/components/loginForm.tsx
 'use client';
 
 import Image from 'next/image';
@@ -6,15 +5,37 @@ import { useState } from 'react';
 import LogoIcon from '../LogoIcon';
 
 const LoginForm = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError('');
+
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (res.ok) {
+      // ✅ force reload so middleware can access the cookie
+      window.location.href = '/dashboard/home';
+    } else {
+      const text = await res.text();
+      setError(text || 'Login failed');
+    }
+  };
 
   return (
-    <form className="w-full max-w-sm text-black">
+    <form onSubmit={handleSubmit} className="w-full max-w-sm text-black">
       {/* logo */}
       <div className="flex justify-center mb-10">
         <div className="flex items-center gap-2">
-          {/* Embedded SVG Logo */}
           <LogoIcon />
           <span className="text-lg font-bold tracking-tight">StockSync ERP</span>
         </div>
@@ -28,20 +49,23 @@ const LoginForm = () => {
         </p>
       </div>
 
-      {/* email */}
+      {/* error */}
+      {error && (
+        <div className="mb-4 text-sm text-red-600 text-center">{error}</div>
+      )}
+
       <label className="block">
-        <span className="text-sm font-medium">Username</span>
+        <span className="text-sm font-medium">Email</span>
         <input
           type="text"
-          placeholder="Enter your username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
+          placeholder="Enter your email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
           className="mt-2 w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-black"
           required
         />
       </label>
 
-      {/* password */}
       <label className="mt-6 block">
         <span className="text-sm font-medium">Password</span>
         <input
@@ -54,7 +78,6 @@ const LoginForm = () => {
         />
       </label>
 
-      {/* options row */}
       <div className="mt-4 flex items-center justify-between text-sm">
         <label className="flex items-center gap-2">
           <input
@@ -68,7 +91,6 @@ const LoginForm = () => {
         </a>
       </div>
 
-      {/* sign‑in button */}
       <button
         type="submit"
         className="mt-8 w-full rounded-md bg-black py-3 text-sm font-medium text-white transition hover:opacity-90"
@@ -76,14 +98,12 @@ const LoginForm = () => {
         Sign In
       </button>
 
-      {/* divider */}
       <div className="relative my-6 h-px bg-gray-200">
         <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-4 text-xs text-gray-400">
           or
         </span>
       </div>
 
-      {/* Sign in with Google */}
       <button
         type="button"
         className="flex w-full items-center justify-center gap-3 rounded-md border border-gray-200 bg-white py-3 text-sm font-medium transition hover:bg-gray-50"
@@ -97,7 +117,6 @@ const LoginForm = () => {
         Sign In with Google
       </button>
 
-      {/* footer link */}
       <p className="mt-8 text-center text-sm text-gray-500">
         Don&apos;t have an account?{' '}
         <a href="/auth/register" className="font-medium text-black hover:underline">

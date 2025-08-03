@@ -1,60 +1,114 @@
-// prisma/seed.ts
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const hashed = await bcrypt.hash('password123', 10);
-
-  const user = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: {
-      email: 'user@example.com',
-      password: hashed,
-      name: 'Seeded User',
-      isVerified: true,
-      isActive: true,
-    },
+  // Seed roles
+  await prisma.role.createMany({
+    data: [
+      { name: 'ADMIN' },
+      { name: 'USER' },
+    ],
+    skipDuplicates: true,
   });
 
-  const vendor = await prisma.vendor.create({
-    data: {
-      name: 'Test Vendor',
-      userId: user.id,
-    },
-  });
+  const adminRole = await prisma.role.findUnique({ where: { name: 'ADMIN' } });
+  const userRole = await prisma.role.findUnique({ where: { name: 'USER' } });
 
-  const item = await prisma.item.create({
-    data: {
-      name: 'Seeded Item',
-      price: 50,
-      stock: 20,
-      userId: user.id,
-    },
-  });
+  if (!adminRole || !userRole) throw new Error('Roles not found.');
 
-  await prisma.transactionHeader.create({
-    data: {
-      userId: user.id,
-      vendorId: vendor.id,
-      totalAmount: 1000,
-      details: {
-        create: {
-          itemId: item.id,
-          quantity: 20,
-          priceAtPurchase: 50,
+  const users = [];
+  for (let i = 0; i < 5; i++) {
+    const password = await bcrypt.hash('password123', 10);
+    users.push(
+      await prisma.user.create({
+        data: {
+          email: `user${i}@example.com`,
+          password,
+          name: faker.person.fullName(),
+          isVerified: true,
+          isActive: true,
+          subscriptionExpiry: faker.date.soon({ days: 30 }),
+          roleId: i === 0 ? adminRole.id : userRole.id,
+        },
+      })
+    );
+  }
+
+  const vendors = [];
+  for (let i = 0; i < 5; i++) {
+    vendors.push(
+      await prisma.vendor.create({
+        data: {
+          name: faker.company.name(),
+          contact: faker.phone.number(),
+          address: faker.location.streetAddress(),
+          userId: users[i % users.length].id,
+        },
+      })
+    );
+  }
+
+  const items = [];
+  for (let i = 0; i < 5; i++) {
+    items.push(
+      await prisma.item.create({
+        data: {
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          price: parseFloat(faker.commerce.price({ min: 10, max: 100 })),
+          stock: faker.number.int({ min: 10, max: 100 }),
+          userId: users[i % users.length].id,
+          vendorId: vendors[i % vendors.length].id,
+        },
+      })
+    );
+  }
+
+  for (let i = 0; i < 5; i++) {
+    await prisma.transactionHeader.create({
+      data: {
+        userId: users[i % users.length].id,
+        totalAmount: 0,
+        details: {
+          create: [
+            {
+              itemId: items[i % items.length].id,
+              quantity: 1 + i,
+              priceAtPurchase: items[i % items.length].price,
+            },
+          ],
         },
       },
-    },
-  });
+    });
+  }
 
-  console.log('🌱 Seed complete');
+  for (let i = 0; i < 5; i++) {
+    await prisma.supplyTransactionHeader.create({
+      data: {
+        userId: users[i % users.length].id,
+        vendorId: vendors[i % vendors.length].id,
+        totalAmount: 0,
+        details: {
+          create: [
+            {
+              itemId: items[i % items.length].id,
+              quantity: 5 + i,
+              priceAtPurchase: items[i % items.length].price,
+            },
+          ],
+        },
+      },
+    });
+  }
+
+  console.log('🌱 Database has been seeded!');
 }
 
 main()
-  .catch(e => {
+  .catch((e) => {
     console.error(e);
     process.exit(1);
   })

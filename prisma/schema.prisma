@@ -9,21 +9,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Role {
+  id    String @id @default(cuid())
+  name  String @unique
+  users User[] // one-to-many: one role has many users
+}
+
 model User {
-  id         String   @id @default(uuid())
-  email      String   @unique
-  password   String
-  name       String?
-  isVerified Boolean
-  isActive   Boolean
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  password           String
+  name               String?
+  isVerified         Boolean   @default(false)
+  isActive           Boolean   @default(false)
   subscriptionExpiry DateTime?
-  resetToken String?  @db.Text
-  resetTokenExpiry  DateTime?
-  createdAt  DateTime @default(now())
+  resetToken         String?   @db.Text
+  resetTokenExpiry   DateTime?
+  createdAt          DateTime  @default(now())
+
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id])
 
   items        Item[]
   vendors      Vendor[]
   transactions TransactionHeader[]
+  supplies     SupplyTransactionHeader[]
 }
 
 model Item {
@@ -34,9 +44,12 @@ model Item {
   stock       Int
   createdAt   DateTime @default(now())
   userId      String
+  vendorId    String
 
-  user    User                @relation(fields: [userId], references: [id])
-  details TransactionDetail[]
+  user     User                      @relation(fields: [userId], references: [id])
+  vendor   Vendor                    @relation(fields: [vendorId], references: [id])
+  details  TransactionDetail[]
+  supplies SupplyTransactionDetail[]
 }
 
 model Vendor {
@@ -47,19 +60,18 @@ model Vendor {
   createdAt DateTime @default(now())
   userId    String
 
-  user         User                @relation(fields: [userId], references: [id])
-  transactions TransactionHeader[]
+  user     User                      @relation(fields: [userId], references: [id])
+  items    Item[]
+  supplies SupplyTransactionHeader[]
 }
 
 model TransactionHeader {
   id          String   @id @default(uuid())
   userId      String
-  vendorId    String
   totalAmount Float
   createdAt   DateTime @default(now())
 
   user    User                @relation(fields: [userId], references: [id])
-  vendor  Vendor              @relation(fields: [vendorId], references: [id])
   details TransactionDetail[]
 }
 
@@ -72,4 +84,27 @@ model TransactionDetail {
 
   transaction TransactionHeader @relation(fields: [transactionId], references: [id])
   item        Item              @relation(fields: [itemId], references: [id])
+}
+
+model SupplyTransactionHeader {
+  id          String   @id @default(uuid())
+  vendorId    String
+  userId      String
+  totalAmount Float
+  createdAt   DateTime @default(now())
+
+  vendor  Vendor                    @relation(fields: [vendorId], references: [id])
+  user    User                      @relation(fields: [userId], references: [id])
+  details SupplyTransactionDetail[]
+}
+
+model SupplyTransactionDetail {
+  id              String @id @default(uuid())
+  supplyId        String
+  itemId          String
+  quantity        Int
+  priceAtPurchase Float
+
+  supply SupplyTransactionHeader @relation(fields: [supplyId], references: [id])
+  item   Item                    @relation(fields: [itemId], references: [id])
 }
