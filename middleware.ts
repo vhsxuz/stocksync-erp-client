@@ -22,7 +22,6 @@ export async function middleware(request: NextRequest) {
 
   if (token) {
     const user = await verifyJWT(token); // must await now
-    console.log('👤 Verified User:', user);
 
     if (!user && !isPublic) {
       const res = NextResponse.redirect(new URL('/auth/login', request.url));

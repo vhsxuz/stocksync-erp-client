@@ -1,10 +1,8 @@
 // app/api/auth/login/route.ts
-import { PrismaClient } from '@prisma/client';
+import  prisma  from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { serialize } from 'cookie';
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
