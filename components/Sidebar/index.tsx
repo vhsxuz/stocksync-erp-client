@@ -1,12 +1,13 @@
 import React from 'react';
-import { LogOut, Package, Settings, Users, FileText, Warehouse } from 'lucide-react';
+import { LogOut, Package, Settings, Users, Warehouse, ListOrdered, Store } from 'lucide-react';
 import Link from 'next/link';
 import LogoIcon from '@/components/LogoIcon';
 
 const navItems = [
   { href: '/dashboard/home', icon: <Package size={20} />, label: 'Home' },
   { href: '/dashboard/items', icon: <Warehouse size={20} />, label: 'Items' },
-  { href: '/dashboard/reports', icon: <FileText size={20} />, label: 'Reports' },
+  { href: '/dashboard/vendors', icon: <Store size={20} />, label: 'Vendors' },
+  { href: '/dashboard/categories', icon: <ListOrdered size={20} />, label: 'Categories' },
   { href: '/dashboard/settings', icon: <Settings size={20} />, label: 'Settings' },
   { href: '/dashboard/users', icon: <Users size={20} />, label: 'Users', adminOnly: true },
 ];

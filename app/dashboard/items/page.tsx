@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, Search, Filter } from 'lucide-react';
+import { Pencil, Trash2, Search } from 'lucide-react';
 import debounce from 'lodash.debounce';
 
 type Item = {
@@ -30,7 +30,7 @@ const Items = () => {
   const [searchInput, setSearchInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const pageSize = 10;
+  const pageSize = 7;
 
   // Fetch categories
   useEffect(() => {
