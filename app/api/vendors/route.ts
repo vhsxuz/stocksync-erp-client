@@ -22,3 +22,29 @@ export async function GET(req: NextRequest) {
     return new Response('Internal Server Error', { status: 500 });
   }
 }
+
+export async function POST(req: NextRequest) {
+  try {
+    const token = req.cookies.get('token')?.value;
+    if (!token) return new Response('Unauthorized', { status: 401 });
+
+    const user = await verifyJWT(token);
+    if (!user) return new Response('Unauthorized', { status: 401 });
+
+    const { name, contact, address } = await req.json();
+
+    const vendor = await prisma.vendor.create({
+      data: {
+        name,
+        contact,
+        address,
+        userId: user.id,
+      },
+    });
+
+    return Response.json(vendor, { status: 201 });
+  } catch (error) {
+    console.error('[POST /api/vendors] Error:', error);
+    return new Response('Internal Server Error', { status: 500 });
+  }
+}

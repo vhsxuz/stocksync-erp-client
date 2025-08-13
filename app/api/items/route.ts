@@ -59,3 +59,37 @@ export async function GET(req: NextRequest) {
     return new Response('Internal Server Error', { status: 500 });
   }
 }
+
+export async function POST(req: NextRequest) {
+  try {
+    const token = req.cookies.get('token')?.value;
+    if (!token) return new Response('Unauthorized', { status: 401 });
+
+    const user = await verifyJWT(token);
+    if (!user) return new Response('Unauthorized', { status: 401 });
+
+    const body = await req.json();
+    const { name, description, price, stock, vendorId, categoryId } = body;
+
+    if (!name || !price || !stock || !vendorId) {
+      return new Response('Missing required fields', { status: 400 });
+    }
+
+    const newItem = await prisma.item.create({
+      data: {
+        name,
+        description: description || null,
+        price: Number(price),
+        stock: Number(stock),
+        vendorId,
+        categoryId: categoryId || null,
+        userId: user.id,
+      },
+    });
+
+    return Response.json(newItem, { status: 201 });
+  } catch (error) {
+    console.error('[POST /api/items] Error:', error);
+    return new Response('Internal Server Error', { status: 500 });
+  }
+}

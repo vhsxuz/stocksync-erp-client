@@ -78,7 +78,7 @@ const Vendors = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h2 className="text-xl sm:text-2xl font-bold text-white">Vendors</h2>
         <Link
-          href="/dashboard/vendors/new"
+          href="/dashboard/vendors/add"
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
         >
           Add Vendor
