@@ -103,7 +103,7 @@ const Settings = () => {
           <h2 className="text-lg font-medium border-b border-gray-700 pb-2 mb-4">
             Security
           </h2>
-          <button className="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded-lg font-medium">
+          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
             Change Password 
           </button>
         </section>
