@@ -137,7 +137,7 @@ const Vendors = () => {
                     <td className="px-4 py-4 text-center">
                       <div className="flex justify-center items-center gap-3">
                         <Link
-                          href={`/dashboard/vendors/edit/${vendor.id}`}
+                          href={`/dashboard/vendors/${vendor.id}/edit`}
                           className="text-blue-500 hover:text-blue-400"
                         >
                           <Pencil size={18} />
@@ -171,7 +171,7 @@ const Vendors = () => {
                 </div>
                 <div className="flex justify-end gap-4 mt-3">
                   <Link
-                    href={`/dashboard/vendors/edit/${vendor.id}`}
+                    href={`/dashboard/vendors/${vendor.id}/edit`}
                     className="text-blue-500 hover:text-blue-400"
                   >
                     <Pencil size={18} />
