@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import debounce from 'lodash.debounce';
 
 type Category = {
@@ -51,19 +51,7 @@ const Categories = () => {
     debouncedSearch(e.target.value);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this category?')) {
-      try {
-        const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
-        if (!res.ok) throw new Error('Delete failed');
-        setCategories((prev) => prev.filter((c) => c.id !== id));
-        setFilteredCategories((prev) => prev.filter((c) => c.id !== id));
-      } catch (err) {
-        console.error(err);
-        setError('Failed to delete category');
-      }
-    }
-  };
+  // Actions removed per requirements
 
   return (
     <div className="p-4 sm:p-6">
@@ -111,7 +99,7 @@ const Categories = () => {
                 <tr>
                   <th className="px-4 py-3">#</th>
                   <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3 text-center">Actions</th>
+                  
                 </tr>
               </thead>
               <tbody className="bg-gray-900 divide-y divide-gray-800">
@@ -119,22 +107,7 @@ const Categories = () => {
                   <tr key={cat.id} className="hover:bg-gray-800 transition">
                     <td className="px-4 py-4">{index + 1}</td>
                     <td className="px-4 py-4 font-medium text-white">{cat.name}</td>
-                    <td className="px-4 py-4 text-center">
-                      <div className="flex justify-center items-center gap-3">
-                        <Link
-                          href={`/dashboard/categories/edit/${cat.id}`}
-                          className="text-blue-500 hover:text-blue-400"
-                        >
-                          <Pencil size={18} />
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(cat.id)}
-                          className="text-red-500 hover:text-red-400"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
+                    
                   </tr>
                 ))}
               </tbody>
@@ -149,20 +122,7 @@ const Categories = () => {
                   <h3 className="font-semibold text-white">{cat.name}</h3>
                   <span className="text-sm text-gray-400">#{index + 1}</span>
                 </div>
-                <div className="flex justify-end gap-4 mt-3">
-                  <Link
-                    href={`/dashboard/categories/edit/${cat.id}`}
-                    className="text-blue-500 hover:text-blue-400"
-                  >
-                    <Pencil size={18} />
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(cat.id)}
-                    className="text-red-500 hover:text-red-400"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
+                
               </div>
             ))}
           </div>
