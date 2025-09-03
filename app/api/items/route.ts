@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '10', 10);
     const search = searchParams.get('search')?.toLowerCase() || '';
-    const category = searchParams.get('category'); // Changed to 'category' to match frontend
+    const category = searchParams.get('category');
 
     const token = req.cookies.get('token')?.value;
     if (!token) return new Response('Unauthorized', { status: 401 });
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
         contains: search,
         mode: Prisma.QueryMode.insensitive,
       },
-      ...(category && category !== 'undefined' ? { categoryId: category } : {}), // Fixed parameter name
+      ...(category && category !== 'undefined' ? { categoryId: category } : {}),
     };
 
     const [items, total] = await Promise.all([
@@ -31,9 +31,9 @@ export async function GET(req: NextRequest) {
         where: whereClause,
         skip: (page - 1) * limit,
         take: limit,
-        include: { 
+        include: {
           vendor: true,
-          category: true, // Include category details
+          category: true,
         },
       }),
       prisma.item.count({ where: whereClause }),
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
       stock: item.stock,
       price: item.price,
       vendorName: item.vendor?.name ?? 'N/A',
-      categoryName: item.category?.name ?? 'Uncategorized', // Added category name
+      categoryName: item.category?.name ?? 'Uncategorized',
       createdAt: item.createdAt,
     }));
 

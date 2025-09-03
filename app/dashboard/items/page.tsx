@@ -207,10 +207,16 @@ const Items = () => {
                     <td className="px-4 py-4">{item.categoryName}</td>
                     <td className="px-4 py-4 text-center">
                       <div className="flex justify-center items-center gap-3">
-                        <Link href={`/dashboard/items/edit/${item.id}`} className="text-blue-500 hover:text-blue-400">
+                        <Link
+                          href={`/dashboard/items/${item.id}/edit`}
+                          className="text-blue-500 hover:text-blue-400"
+                        >
                           <Pencil size={18} />
                         </Link>
-                        <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:text-red-400">
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="text-red-500 hover:text-red-400"
+                        >
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -236,10 +242,16 @@ const Items = () => {
                   <p><strong>Category:</strong> {item.categoryName}</p>
                 </div>
                 <div className="flex justify-end gap-4 mt-3">
-                  <Link href={`/dashboard/items/edit/${item.id}`} className="text-blue-500 hover:text-blue-400">
+                  <Link
+                    href={`/dashboard/items/${item.id}/edit`}
+                    className="text-blue-500 hover:text-blue-400"
+                  >
                     <Pencil size={18} />
                   </Link>
-                  <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:text-red-400">
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="text-red-500 hover:text-red-400"
+                  >
                     <Trash2 size={18} />
                   </button>
                 </div>
