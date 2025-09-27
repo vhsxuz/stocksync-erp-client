@@ -1,6 +1,7 @@
 // src/components/Auth.tsx
 'use client';
 
+import { Suspense } from 'react';
 import Image from 'next/image';
 import authImage from '@/assets/images/auth-image.jpg';
 import RegisterForm from '@/components/RegisterForm';
@@ -9,6 +10,14 @@ import LoginForm from '@/components/LoginForm';
 import ChangePasswordForm from '@/components/ChangePasswordForm';
 
 type Props = { mode: 'login' | 'register' | 'forgot' | 'change-password' };
+
+function ChangePasswordFallback() {
+  return (
+    <div className="w-full max-w-sm rounded-xl bg-white p-8 text-center text-sm text-gray-500 shadow">
+      Loading form...
+    </div>
+  );
+}
 
 export default function Auth({ mode }: Props) {
   return (
@@ -53,15 +62,17 @@ export default function Auth({ mode }: Props) {
 
         {/* right column */}
         <div className="flex w-full flex-col items-center justify-center bg-white px-8 py-16 md:w-1/2 md:px-14">
-            {mode === 'register' ? (
+          {mode === 'register' ? (
             <RegisterForm />
-            ) : mode === 'forgot' ? (
+          ) : mode === 'forgot' ? (
             <ForgotPasswordForm />
-            ) : mode === 'change-password' ? (
-            <ChangePasswordForm />
-            ) : (
+          ) : mode === 'change-password' ? (
+            <Suspense fallback={<ChangePasswordFallback />}>
+              <ChangePasswordForm />
+            </Suspense>
+          ) : (
             <LoginForm />
-            )}
+          )}
         </div>
       </section>
     </main>

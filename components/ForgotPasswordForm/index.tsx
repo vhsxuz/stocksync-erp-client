@@ -30,6 +30,7 @@ const ForgotPasswordForm = () => {
       }
     } catch (err) {
       setError('Something went wrong. Please try again.');
+      console.debug('ForgotPasswordForm error:', err);
     } finally {
       setLoading(false);
     }

@@ -25,7 +25,13 @@ export async function POST(req: Request) {
       password: hashed,
       name,
       isVerified: false,
-      isActive: false
+      isActive: false,
+      role: {
+        connectOrCreate: {
+          where: { name: 'USER' },
+          create: { name: 'USER' }
+        }
+      }
     },
   });
 

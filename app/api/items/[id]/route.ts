@@ -1,20 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server';
+// app/api/items/[id]/route.ts
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import prisma from '@/lib/prisma';
 import { verifyJWT } from '@/lib/auth';
 
-// ✅ GET single item
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+async function getUserFromCookie() {
+  const cookieStore = cookies();
+  const token = (await cookieStore).get('token')?.value;
+  if (!token) return null;
   try {
-    const token = req.cookies.get('token')?.value;
-    if (!token) return new NextResponse('Unauthorized', { status: 401 });
+    return await verifyJWT(token);
+  } catch {
+    return null;
+  }
+}
 
-    const user = await verifyJWT(token);
+type ContextWithParams = {
+  params: Promise<Record<string, string | undefined>>;
+};
+
+// ✅ GET /api/items/[id]
+export async function GET(_req: NextRequest, ctx: ContextWithParams) {
+  try {
+    const user = await getUserFromCookie();
     if (!user) return new NextResponse('Unauthorized', { status: 401 });
 
-    const { id } = params;
+    const params = await ctx.params;
+    const id = params?.id;
+    if (!id) {
+      return new NextResponse('Item id is required', { status: 400 });
+    }
     const item = await prisma.item.findUnique({
       where: { id },
       include: { vendor: true, category: true },
@@ -40,21 +56,18 @@ export async function GET(
   }
 }
 
-// ✅ UPDATE item
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+// ✅ PUT /api/items/[id]
+export async function PUT(req: NextRequest, ctx: ContextWithParams) {
   try {
-    const token = req.cookies.get('token')?.value;
-    if (!token) return new NextResponse('Unauthorized', { status: 401 });
-
-    const user = await verifyJWT(token);
+    const user = await getUserFromCookie();
     if (!user) return new NextResponse('Unauthorized', { status: 401 });
 
-    const { id } = params;
-    const body = await req.json();
-    const { name, description, price, stock, vendorId, categoryId } = body;
+    const params = await ctx.params;
+    const id = params?.id;
+    if (!id) {
+      return new NextResponse('Item id is required', { status: 400 });
+    }
+    const { name, description, price, stock, vendorId, categoryId } = await req.json();
 
     const existingItem = await prisma.item.findUnique({ where: { id } });
     if (!existingItem || existingItem.userId !== user.id) {
@@ -80,26 +93,24 @@ export async function PUT(
   }
 }
 
-// ✅ DELETE item
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+// ✅ DELETE /api/items/[id]
+export async function DELETE(_req: NextRequest, ctx: ContextWithParams) {
   try {
-    const token = req.cookies.get('token')?.value;
-    if (!token) return new NextResponse('Unauthorized', { status: 401 });
-
-    const user = await verifyJWT(token);
+    const user = await getUserFromCookie();
     if (!user) return new NextResponse('Unauthorized', { status: 401 });
 
-    const { id } = params;
+    const params = await ctx.params;
+    const id = params?.id;
+    if (!id) {
+      return new NextResponse('Item id is required', { status: 400 });
+    }
+
     const existingItem = await prisma.item.findUnique({ where: { id } });
     if (!existingItem || existingItem.userId !== user.id) {
       return new NextResponse('Item not found or unauthorized', { status: 404 });
     }
 
     await prisma.item.delete({ where: { id } });
-
     return NextResponse.json({ message: 'Item deleted successfully' });
   } catch (error) {
     console.error('[DELETE /api/items/[id]] Error:', error);
