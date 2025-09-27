@@ -1,5 +1,5 @@
 // app/api/auth/login/route.ts
-import  prisma  from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { serialize } from 'cookie';
@@ -7,6 +7,8 @@ import { serialize } from 'cookie';
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
+
+    const prisma = getPrisma();
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return new Response('Invalid credentials', { status: 401 });

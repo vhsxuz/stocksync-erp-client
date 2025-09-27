@@ -1,4 +1,4 @@
-import  prisma  from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 
 export async function POST(req: Request) {
@@ -7,6 +7,8 @@ export async function POST(req: Request) {
   if (!token || !password) {
     return new Response('Token and password are required', { status: 400 });
   }
+
+  const prisma = getPrisma();
 
   const user = await prisma.user.findFirst({
     where: {

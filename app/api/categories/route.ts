@@ -1,10 +1,11 @@
 import { NextRequest } from 'next/server'
-import prisma from '@/lib/prisma'
+import { getPrisma } from '@/lib/prisma'
 import { verifyJWT } from '@/lib/auth'
 
 export async function GET() {
   try {
     // Fetch all categories (public)
+    const prisma = getPrisma()
     const categories = await prisma.itemCategory.findMany({
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
@@ -31,6 +32,8 @@ export async function POST(req: NextRequest) {
     }
 
     // 1️⃣ Try to find existing category with the same name
+    const prisma = getPrisma()
+
     let category = await prisma.itemCategory.findFirst({
       where: { name },
     });

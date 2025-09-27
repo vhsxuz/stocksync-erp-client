@@ -2,12 +2,12 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import { verifyJWT } from '@/lib/auth';
 
 async function getUserFromCookie() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get('token')?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
   if (!token) return null;
   try {
     return await verifyJWT(token);
@@ -31,6 +31,7 @@ export async function GET(_req: NextRequest, ctx: ContextWithParams) {
     if (!id) {
       return new NextResponse('Item id is required', { status: 400 });
     }
+    const prisma = getPrisma();
     const item = await prisma.item.findUnique({
       where: { id },
       include: { vendor: true, category: true },
@@ -69,6 +70,7 @@ export async function PUT(req: NextRequest, ctx: ContextWithParams) {
     }
     const { name, description, price, stock, vendorId, categoryId } = await req.json();
 
+    const prisma = getPrisma();
     const existingItem = await prisma.item.findUnique({ where: { id } });
     if (!existingItem || existingItem.userId !== user.id) {
       return new NextResponse('Item not found or unauthorized', { status: 404 });
@@ -105,6 +107,7 @@ export async function DELETE(_req: NextRequest, ctx: ContextWithParams) {
       return new NextResponse('Item id is required', { status: 400 });
     }
 
+    const prisma = getPrisma();
     const existingItem = await prisma.item.findUnique({ where: { id } });
     if (!existingItem || existingItem.userId !== user.id) {
       return new NextResponse('Item not found or unauthorized', { status: 404 });

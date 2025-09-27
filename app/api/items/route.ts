@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import prisma from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import { verifyJWT } from '@/lib/auth';
 import { Prisma } from '@prisma/client';
 
@@ -25,6 +25,8 @@ export async function GET(req: NextRequest) {
       },
       ...(category && category !== 'undefined' ? { categoryId: category } : {}),
     };
+
+    const prisma = getPrisma();
 
     const [items, total] = await Promise.all([
       prisma.item.findMany({
@@ -74,6 +76,8 @@ export async function POST(req: NextRequest) {
     if (!name || !price || !stock || !vendorId) {
       return new Response('Missing required fields', { status: 400 });
     }
+
+    const prisma = getPrisma();
 
     const newItem = await prisma.item.create({
       data: {

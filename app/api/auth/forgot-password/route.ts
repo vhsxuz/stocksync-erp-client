@@ -1,4 +1,4 @@
-import  prisma  from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
@@ -6,6 +6,8 @@ const { GMAIL_USER, GMAIL_PASS, EMAIL_FROM, EMAIL_BASE_URL } = process.env;
 
 export async function POST(req: Request) {
   const { email } = await req.json();
+
+  const prisma = getPrisma();
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {

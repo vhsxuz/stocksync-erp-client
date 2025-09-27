@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import prisma from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import { verifyJWT } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
@@ -11,6 +11,8 @@ export async function GET(req: NextRequest) {
     if (!user?.id) return new Response('Unauthorized', { status: 401 });
 
     // Total revenue from transactions
+    const prisma = getPrisma();
+
     const revenueAgg = await prisma.transactionHeader.aggregate({
       where: { userId: user.id },
       _sum: { totalAmount: true },

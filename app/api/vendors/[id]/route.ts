@@ -1,11 +1,12 @@
 // app/api/items/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import { verifyJWT } from '@/lib/auth';
 
 async function getUserFromCookie() {
-  const token = (await cookies()).get('token')?.value; // ✅ sync
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
   if (!token) return null;
   try {
     return await verifyJWT(token);
@@ -25,6 +26,7 @@ export async function GET(
     if (!user) return new NextResponse('Unauthorized', { status: 401 });
 
     const id = String(params?.id);
+    const prisma = getPrisma();
     const item = await prisma.item.findUnique({
       where: { id },
       include: { vendor: true, category: true },
@@ -63,6 +65,7 @@ export async function PUT(
     const id = String(params?.id);
     const { name, description, price, stock, vendorId, categoryId } = await req.json();
 
+    const prisma = getPrisma();
     const existingItem = await prisma.item.findUnique({ where: { id } });
     if (!existingItem || existingItem.userId !== user.id) {
       return new NextResponse('Item not found or unauthorized', { status: 404 });
@@ -99,6 +102,7 @@ export async function DELETE(
 
     const id = String(params?.id);
 
+    const prisma = getPrisma();
     const existingItem = await prisma.item.findUnique({ where: { id } });
     if (!existingItem || existingItem.userId !== user.id) {
       return new NextResponse('Item not found or unauthorized', { status: 404 });

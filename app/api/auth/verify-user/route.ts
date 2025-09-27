@@ -1,13 +1,14 @@
 // app/api/auth/verify-user/route.ts
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import { verifyJWT } from '@/lib/auth';
 
 export async function GET() {
   try {
     // 1️⃣ Get token from cookies
-    const token = (await cookies()).get('token')?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
 
     if (!token) {
       return NextResponse.json({ message: 'Not authenticated' }, { status: 401 });
@@ -20,6 +21,7 @@ export async function GET() {
     }
 
     // 3️⃣ Fetch user role from DB
+    const prisma = getPrisma();
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
       select: { role: true },

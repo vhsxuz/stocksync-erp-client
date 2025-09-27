@@ -1,6 +1,6 @@
 // app/api/vendors/route.ts
 import { NextRequest } from 'next/server';
-import prisma from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import { verifyJWT } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
@@ -10,6 +10,8 @@ export async function GET(req: NextRequest) {
 
     const user = await verifyJWT(token);
     if (!user) return new Response('Unauthorized', { status: 401 });
+
+    const prisma = getPrisma();
 
     const vendors = await prisma.vendor.findMany({
       where: { userId: user.id },
@@ -32,6 +34,8 @@ export async function POST(req: NextRequest) {
     if (!user) return new Response('Unauthorized', { status: 401 });
 
     const { name, contact, address } = await req.json();
+
+    const prisma = getPrisma();
 
     const vendor = await prisma.vendor.create({
       data: {
